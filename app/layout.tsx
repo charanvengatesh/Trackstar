@@ -15,11 +15,12 @@ export default function RootLayout({
       <body>
         <AuthProvider authUrl={process.env.NEXT_PUBLIC_AUTH_URL!}>
           <ChakraProvider>
-            <div className="bg-black">
             <Navbar />
-            <div className="flex h-screen bg-champagne flex-col justify-center items-center">
-              {children}
-            </div></div>
+            <div className="w-full flex flex-col justify-center items-center bg-champagne h-screen">
+              <div className=" p-4 max-w-6xl w-full flex flex-col justify-center items-center ">
+                {children}
+              </div>
+            </div>
           </ChakraProvider>
         </AuthProvider>
       </body>
