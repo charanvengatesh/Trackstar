@@ -9,6 +9,15 @@ export interface BillInterface {
   payment_amount: number;
 }
 
+export interface AccountInterface {
+  _id: string;
+  type: string;
+  nickname: string;
+  rewards: number;
+  balance: number;
+  account_number: string;
+  customer_id: string;
+}
 export interface CustomerInterface {
   address: {};
   first_name: string;
@@ -30,9 +39,11 @@ export const fetchCustomers = async () => {
 export const checkCustomer = async ({
   props,
   setCustomer,
+  setBills,
 }: {
   props: WithAuthInfoProps;
   setCustomer: Function;
+  setBills: Function;
 }) => {
   const data = await fetchCustomers();
   const customer = Array.isArray(data)
@@ -42,6 +53,10 @@ export const checkCustomer = async ({
     await addCustomer({ props, setCustomer });
     return;
   }
+
+  let accountID = await getAccountFromCustomerID(customer._id);
+  let bills = await getBillsFromAccountID(accountID);
+  setBills(bills);
   setCustomer(customer);
 };
 
@@ -110,14 +125,10 @@ export const addCustomer = async ({
   }
 };
 
-export const getBillsFromAccountID = async (
-  customerId: string,
-  nickname: string
-) => {
+export const getBillsFromAccountID = async (accountID: string) => {
   try {
-    const accountId = await getAccountFromCustomerID(customerId, nickname);
     const response = await fetch(
-      `http://api.nessieisreal.com/accounts/${accountId}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
+      `http://api.nessieisreal.com/accounts/${accountID}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
     );
     const data = await response.json();
     return data;
@@ -126,19 +137,13 @@ export const getBillsFromAccountID = async (
   }
 };
 
-export const getAccountFromCustomerID = async (
-  customerId: string,
-  nickname: string
-) => {
+export const getAccountFromCustomerID = async (customerId: string) => {
   try {
     const response = await fetch(
       `http://api.nessieisreal.com/customers/${customerId}/accounts?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
     );
-    const data = await response.json();
-    const account = Array.isArray(data)
-      ? data.find((account) => account.nickname === nickname)
-      : null;
-    return account?._id;
+    const account = await response.json();
+    return account[0]?._id;
   } catch (error) {
     console.error("Error fetching account:", error);
   }
@@ -146,20 +151,10 @@ export const getAccountFromCustomerID = async (
 
 export const addBillFromCustomerID = async (
   customerId: string,
-  nickname: string,
-  name: string,
-  amount: number
+  bill: BillInterface,
 ) => {
   try {
-    const accountId = await getAccountFromCustomerID(customerId, nickname);
-    const bill: BillInterface = {
-      status: "done",
-      payee: "CHICK FIL A",
-      nickname: "fast food",
-      payment_date: "2022-01-01",
-      recurring_date: 1,
-      payment_amount: 6.7,
-    };
+    const accountId = await getAccountFromCustomerID(customerId);
 
     const response = await fetch(
       `http://api.nessieisreal.com/accounts/${accountId}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`,
