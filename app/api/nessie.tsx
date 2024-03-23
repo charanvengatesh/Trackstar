@@ -54,8 +54,7 @@ export const checkCustomer = async ({
     return;
   }
 
-  let accountID = await getAccountFromCustomerID(customer._id);
-  let bills = await getBillsFromAccountID(accountID);
+  let bills = await getBillsFromCustomerID(customer._id);
   setBills(bills);
   setCustomer(customer);
 };
@@ -125,8 +124,9 @@ export const addCustomer = async ({
   }
 };
 
-export const getBillsFromAccountID = async (accountID: string) => {
+export const getBillsFromCustomerID = async (customerID: string) => {
   try {
+    const accountID = await getAccountFromCustomerID(customerID);
     const response = await fetch(
       `http://api.nessieisreal.com/accounts/${accountID}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
     );
@@ -146,6 +146,18 @@ export const getAccountFromCustomerID = async (customerId: string) => {
     return account[0]?._id;
   } catch (error) {
     console.error("Error fetching account:", error);
+  }
+};
+
+export const getBillsFromAccountID = async (accountID: string) => {
+  try {
+    const response = await fetch(
+      `http://api.nessieisreal.com/accounts/${accountID}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching bills:", error);
   }
 };
 
