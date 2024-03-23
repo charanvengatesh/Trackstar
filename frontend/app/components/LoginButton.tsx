@@ -14,9 +14,9 @@ const LoginButton = withAuthInfo((props: WithAuthInfoProps) => {
   return (
     <div>
       {props.isLoggedIn ? (
-        <Button onClick={() => logoutFunction(true)}>Logout</Button>
+        <Button onClick={() => logoutFunction(true)}>logout</Button>
       ) : (
-        <Button onClick={() => redirectToLoginPage()}>Login</Button>
+        <Button onClick={() => redirectToLoginPage()}>login</Button>
       )}
     </div>
   );

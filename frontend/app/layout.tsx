@@ -3,6 +3,7 @@
 import { AuthProvider } from "@propelauth/react";
 import "./globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
+import Navbar from "./components/Navbar";
 
 export default function RootLayout({
   children,
@@ -13,7 +14,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider authUrl={process.env.NEXT_PUBLIC_AUTH_URL!}>
-          <ChakraProvider>{children} </ChakraProvider>
+          <ChakraProvider>
+            <Navbar />
+            <div className="flex h-screen bg-champagne flex-col justify-center items-center">
+              {children}
+            </div>
+          </ChakraProvider>
         </AuthProvider>
       </body>
     </html>
