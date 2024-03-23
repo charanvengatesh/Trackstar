@@ -1,5 +1,4 @@
-"use client";
-import { Box, Heading, StackDivider, VStack } from "@chakra-ui/react";
+import { Box, Button, Heading, StackDivider, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import {
   withAuthInfo,
@@ -7,33 +6,25 @@ import {
   useLogoutFunction,
   WithAuthInfoProps,
 } from "@propelauth/react";
-
-const NESSIE_API_KEY = "5ae6b5f82f06b944fee942faa27e114e";
-
-export default function Page() {
-  return (
-    <main>
-      <Login />
-    </main>
-  );
-}
+import exp from "constants";
 
 const Login = withAuthInfo((props: WithAuthInfoProps) => {
   const logoutFunction = useLogoutFunction();
   const { redirectToLoginPage, redirectToSignupPage, redirectToAccountPage } =
     useRedirectFunctions();
   const [customerStatus, setCustomerStatus] = useState<null | Boolean>(null);
+  const [bills, setBills] = useState<any>([]);
 
   useEffect(() => {
     if (props.isLoggedIn) {
-      checkIfCustomer();
+      checkCustomerStatus();
     }
   }, [props.isLoggedIn]);
 
   const fetchData = async () => {
     try {
       const response = await fetch(
-        `http://api.nessieisreal.com/customers?key=${NESSIE_API_KEY}`
+        `http://api.nessieisreal.com/customers?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
       );
       return await response.json();
     } catch (error) {
@@ -41,7 +32,7 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
     }
   };
 
-  const checkIfCustomer = async () => {
+  const checkCustomerStatus = async () => {
     const data = await fetchData();
     const customer = Array.isArray(data)
       ? data.find((customer) => customer.last_name === props.user?.email)
@@ -59,7 +50,7 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   const addCustomer = async () => {
     try {
       const response = await fetch(
-        `http://api.nessieisreal.com/customers?key=${NESSIE_API_KEY}`,
+        `http://api.nessieisreal.com/customers?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`,
         {
           method: "POST",
           headers: {
@@ -78,13 +69,13 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
           }),
         }
       );
-      // If the customer is added successfully, add a primary account 
+      // If the customer is added successfully, add a primary account
       try {
         const customer = await response.json();
         const customerObj = customer.objectCreated;
-        
+
         const response2: Response = await fetch(
-          `http://api.nessieisreal.com/customers/${customerObj._id}/accounts?key=${NESSIE_API_KEY}`,
+          `http://api.nessieisreal.com/customers/${customerObj._id}/accounts?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`,
           {
             method: "POST",
             headers: {
@@ -105,7 +96,6 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
       } catch (error) {
         console.error("Error adding primary account:", error);
       }
-      
 
       if (response.ok) {
         console.log("Customer added successfully");
@@ -114,12 +104,25 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
       console.error("Error adding customer:", error);
     }
   };
+  // get bills for account and add them to the state
+  const getBills = async (customerId: string, nickname: string) => {
+    try {
+      const accountId = await getAccountId(customerId, nickname);
+      const response = await fetch(
+        `http://api.nessieisreal.com/accounts/${accountId}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
+      );
+      const data = await response.json();
+      setBills(data);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+    }
+  };
 
-  if (!props.isLoggedIn) return <>You are not logged in!</>;
+  getBills("65fe97fd9683f20dd5189858", "Primary");
   return (
     <div className="flex flex-col gap-12">
       <div>
-        <Heading>Hey, {props.user.firstName}!</Heading>
+        <Heading>Hey, {props.user?.firstName}!</Heading>
         <p className="text-2xl"> Here is a list of your transactions...</p>
       </div>
       <VStack
@@ -127,16 +130,66 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
         spacing={1}
         align="stretch"
       >
-        <Box h="40px" bg="yellow.200">
-          1
-        </Box>
-        <Box h="40px" bg="tomato">
-          2
-        </Box>
-        <Box h="40px" bg="pink.100">
-          3
-        </Box>
+        {Array.isArray(bills) &&
+          bills.map((bill: any, index) => (
+            <Box key={index} h="40px" bg="yellow.200">
+              {bill.payee}
+            </Box>
+          ))}
       </VStack>
     </div>
   );
 });
+
+
+// find id of account using customer id and nickname
+const getAccountId = async (customerId: string, nickname: string) => {
+  try {
+    const response = await fetch(
+      `http://api.nessieisreal.com/customers/${customerId}/accounts?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`
+    );
+    const data = await response.json();
+    const account = Array.isArray(data)
+      ? data.find((account) => account.nickname === nickname)
+      : null;
+    return account?._id;
+  } catch (error) {
+    console.error("Error fetching account:", error);
+  }
+}
+
+
+  
+
+// add bill to account
+const addPurchase = async (customerId: string, nickname: string, name: string, amount: number) => {
+  try {
+    const accountId = await getAccountId(customerId, nickname);
+    const response = await fetch(
+      `http://api.nessieisreal.com/accounts/${accountId}/bills?key=${process.env.NEXT_PUBLIC_NESSIE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "pending",
+          payee: name,
+          nickname: name,
+          payment_date: "2022-01-01",
+          recurring_date: 1,
+          payment_amount: amount,
+        }),
+      }
+    );
+    if (response.ok) {
+      console.log("Bill added successfully");
+    }
+  } catch (error) {
+    console.error("Error adding bill:", error);
+  }
+};
+
+
+
+export default Login;
