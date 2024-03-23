@@ -7,6 +7,7 @@ import {
   WithAuthInfoProps,
 } from "@propelauth/react";
 import exp from "constants";
+import BillBox from "./BillBox";
 
 const Login = withAuthInfo((props: WithAuthInfoProps) => {
   const logoutFunction = useLogoutFunction();
@@ -132,10 +133,9 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
       >
         {Array.isArray(bills) &&
           bills.map((bill: any, index) => (
-            <Box key={index} h="40px" bg="yellow.200">
-              {bill.payee}
-            </Box>
+            <BillBox key={index} name={bill.payee} amount={bill.payment_amount} date={bill.payment_date} />
           ))}
+        
       </VStack>
     </div>
   );

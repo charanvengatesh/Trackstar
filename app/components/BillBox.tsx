@@ -2,18 +2,21 @@
 import React from 'react';
 
 
-export default function BillBox() {
+export default function BillBox({ name, amount, date } : { name: string, amount: number, date: string }) {
   return (
     <div>
-      <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
+      <div className="flex justify-between items-center bg-white p-4 ">
         <div>
-          <p className="text-lg font-bold">Electricity Bill</p>
-          <p className="text-sm">Due on 12/12/2021</p>
+          <p className="text-lg font-bold">{name}</p>
+          <p className="text-sm">{date}</p>
         </div>
         <div>
-          <p className="text-lg font-bold">$100</p>
+          <p className="text-lg font-bold">${amount}</p>
         </div>
       </div>
     </div>
   );
 }
+
+// example usage:
+// <BillBox name="Rent" amount={1200} date="1/1/2022" />
