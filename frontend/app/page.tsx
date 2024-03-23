@@ -1,6 +1,4 @@
 "use client";
-import Navbar from "./components/Navbar";
-import LoginButton from "./components/LoginButton";
 import { Box, Heading, StackDivider, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import {
@@ -11,7 +9,6 @@ import {
 } from "@propelauth/react";
 
 const NESSIE_API_KEY = "5ae6b5f82f06b944fee942faa27e114e";
-
 
 export default function Page() {
   return (
@@ -81,6 +78,35 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
           }),
         }
       );
+      // If the customer is added successfully, add a primary account 
+      try {
+        const customer = await response.json();
+        const customerObj = customer.objectCreated;
+        
+        const response2: Response = await fetch(
+          `http://api.nessieisreal.com/customers/${customerObj._id}/accounts?key=${NESSIE_API_KEY}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              type: "Checking",
+              nickname: "Primary",
+              rewards: 0,
+              balance: 0,
+              account_number: "0000000000000000",
+            }),
+          }
+        );
+        if (response2.ok) {
+          console.log("Primary account added successfully");
+        }
+      } catch (error) {
+        console.error("Error adding primary account:", error);
+      }
+      
+
       if (response.ok) {
         console.log("Customer added successfully");
       }
