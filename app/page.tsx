@@ -42,7 +42,7 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   return (
     <div className="flex flex-col gap-12">
       <div>
-        <Button onClick={}>Add Transactions</Button>
+        <Button onClick={addDummyBills}>Add Transactions</Button>
         <Heading>Hey, {props.user?.firstName}!</Heading>
         <p className="text-2xl"> Here is a list of your transactions...</p>
       </div>
