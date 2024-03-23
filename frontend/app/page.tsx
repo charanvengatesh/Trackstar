@@ -91,21 +91,26 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   if (props.isLoggedIn) {
     return (
       <div>
-        <p>You are logged in as {props.user.email}</p>
-        <button onClick={() => redirectToAccountPage()}>Account</button>
-        <button onClick={() => logoutFunction(true)}>Logout</button>
-        {customerStatus === false && (
-          <p>Successfully added as a new customer!</p>
-        )}
+        <Heading>Hey, {props.user.firstName}!</Heading>
+        <p className="text-2xl"> Here is a list of your transactions...</p>
       </div>
-    );
-  } else {
-    return (
-      <div>
-        <p>You are not logged in</p>
-        <button onClick={() => redirectToLoginPage()}>Login</button>
-        <button onClick={() => redirectToSignupPage()}>Signup</button>
-      </div>
-    );
-  }
+      <VStack
+        divider={<StackDivider borderColor="gray.200" />}
+        spacing={1}
+        align="stretch"
+      >
+        <Box h="40px" bg="yellow.200">
+          1
+        </Box>
+        <Box h="40px" bg="tomato">
+          2
+        </Box>
+        <Box h="40px" bg="pink.100">
+          3
+        </Box>
+      </VStack>
+    </div>
+  );
 });
+
+export default Home;
