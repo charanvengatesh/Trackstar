@@ -1,18 +1,14 @@
 "use client";
 import { Box, Button, Heading, StackDivider, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import {
-  withAuthInfo,
-  WithAuthInfoProps,
-} from "@propelauth/react";
+import { withAuthInfo, WithAuthInfoProps } from "@propelauth/react";
 import BillBox from "./components/BillBox";
 import {
   addBillFromCustomerID,
-
   checkCustomer,
   CustomerInterface,
-
 } from "./api/nessie";
+import { dummyTransactions } from "./api/script";
 
 const Login = withAuthInfo((props: WithAuthInfoProps) => {
   const [customer, setCustomer] = useState<CustomerInterface>();
@@ -29,6 +25,10 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   function addDummyBills() {
     if (customer != null) {
       let customer_id = customer._id;
+      for (let i in dummyTransactions) {
+        console.log(i);
+      }
+
       // addBillFromCustomerID(customerId, nickname, name, amount);
     }
   }
@@ -42,6 +42,7 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   return (
     <div className="flex flex-col gap-12">
       <div>
+        <Button onClick={}>Add Transactions</Button>
         <Heading>Hey, {props.user?.firstName}!</Heading>
         <p className="text-2xl"> Here is a list of your transactions...</p>
       </div>

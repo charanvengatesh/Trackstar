@@ -6,7 +6,7 @@ import Link from "next/link";
 const Navbar = withAuthInfo((props: WithAuthInfoProps) => {
   return (
     <div className="w-full fixed bg-bittersweet text-white flex justify-center ">
-      <div className="w-full max-w-6xl flex justify-between items-center top-0  p-4 ">
+      <div className="w-full max-w-6xl  flex justify-between items-center top-0  p-4 ">
         <p className="  text-2xl">⭐️ Trackstar</p>
         <div className="flex gap-4 items-center  text-md">
           <Link href="/">
@@ -16,6 +16,7 @@ const Navbar = withAuthInfo((props: WithAuthInfoProps) => {
             <p>dashboard</p>
           </Link>
 
+          <LoginButton />
         </div>
       </div>
     </div>
