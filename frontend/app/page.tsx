@@ -1,4 +1,7 @@
 "use client";
+import Navbar from "./components/Navbar";
+import LoginButton from "./components/LoginButton";
+import { Box, Heading, StackDivider, VStack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import {
   withAuthInfo,
@@ -8,6 +11,7 @@ import {
 } from "@propelauth/react";
 
 const NESSIE_API_KEY = "5ae6b5f82f06b944fee942faa27e114e";
+
 
 export default function Page() {
   return (
@@ -22,15 +26,12 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
   const { redirectToLoginPage, redirectToSignupPage, redirectToAccountPage } =
     useRedirectFunctions();
   const [customerStatus, setCustomerStatus] = useState<null | Boolean>(null);
-  const [hasCheckedCustomer, setHasCheckedCustomer] = useState(false);
 
   useEffect(() => {
-    if (props.isLoggedIn && !hasCheckedCustomer) {
+    if (props.isLoggedIn) {
       checkIfCustomer();
-      setHasCheckedCustomer(true);
     }
-  }, [props.isLoggedIn, hasCheckedCustomer]);
-
+  }, [props.isLoggedIn]);
 
   const fetchData = async () => {
     try {
@@ -88,8 +89,9 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
     }
   };
 
-  if (props.isLoggedIn) {
-    return (
+  if (!props.isLoggedIn) return <>You are not logged in!</>;
+  return (
+    <div className="flex flex-col gap-12">
       <div>
         <Heading>Hey, {props.user.firstName}!</Heading>
         <p className="text-2xl"> Here is a list of your transactions...</p>
@@ -112,5 +114,3 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
     </div>
   );
 });
-
-export default Home;
