@@ -132,10 +132,19 @@ const Login = withAuthInfo((props: WithAuthInfoProps) => {
         align="stretch"
       >
         {Array.isArray(bills) &&
-          bills.map((bill: any, index) => (
-            <BillBox key={index} name={bill.payee} amount={bill.payment_amount} date={bill.payment_date} />
-          ))}
-        
+          bills.map((bill: any, index) => {
+            const nicknameParts = bill.nickname.split(" ");
+            const tag = nicknameParts[0];
+            return (
+              <BillBox
+                key={index}
+                name={bill.payee}
+                amount={bill.payment_amount}
+                date={bill.payment_date}
+                tag={tag}
+              />
+            );
+          })}
       </VStack>
     </div>
   );
