@@ -1,20 +1,35 @@
-import { AuthProvider } from "@propelauth/nextjs/client";
-import { getUserOrRedirect } from "@propelauth/nextjs/server/app-router";
+"use client";
+import {
+  withAuthInfo,
+  useRedirectFunctions,
+  useLogoutFunction,
+  WithAuthInfoProps,
+} from "@propelauth/react";
 
-export default function Page() {
-  return (
-    <AuthProvider authUrl={process.env.NEXT_PUBLIC_AUTH_URL || ""}>
-      <main>
-        <h1>Sign In</h1>
-        <WelcomeMessage />
-      </main>
-    </AuthProvider>
-  );
-}
+const Login = withAuthInfo((props: WithAuthInfoProps) => {
+  const logoutFunction = useLogoutFunction();
+  const { redirectToLoginPage, redirectToSignupPage, redirectToAccountPage } =
+    useRedirectFunctions();
+  // Or if you want to make links instead
+  // const { getLoginPageUrl, getSignupPageUrl, getAccountPageUrl } = useHostedPageUrls()
 
-const WelcomeMessage = async () => {
-  // If the user is not logged in, they will be redirected to the login page
-  const user = await getUserOrRedirect();
+  if (props.isLoggedIn) {
+    return (
+      <div>
+        <p>You are logged in as {props.user.email}</p>
+        <button onClick={() => redirectToAccountPage()}>Account</button>
+        <button onClick={() => logoutFunction(true)}>Logout</button>
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <p>You are not logged in</p>
+        <button onClick={() => redirectToLoginPage()}>Login</button>
+        <button onClick={() => redirectToSignupPage()}>Signup</button>
+      </div>
+    );
+  }
+});
 
-  return <div>Hello {user.firstName} {user.lastName}!</div>;
-};
+export default Login;
